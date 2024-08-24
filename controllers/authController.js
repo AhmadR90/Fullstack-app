@@ -1,5 +1,5 @@
 const User = require("../models/users");
-const{hash}=require("bcryptjs")
+const { hash } = require("bcryptjs");
 module.exports = {
   home: (req, res) => {
     try {
@@ -18,14 +18,24 @@ module.exports = {
       if (userExist) {
         res.send("email already exists");
       }
-      const hash_password=await hash(password,10)
-      await User.create({ username, email, phone, password:hash_password });
-      res.send(User)
+
+      const hash_password = await hash(password, 10);
+      const createUser = await User.create({
+        username,
+        email,
+        phone,
+        password: hash_password,
+      });
+      res.send({
+        createUser,
+        token: await createUser.generateToken,
+        userId: createUser._id.toString(),
+      });
     } catch (error) {
       console.log(error);
-      return res.send({
+      return {
         error: error,
-      });
+      };
     }
   },
 };
